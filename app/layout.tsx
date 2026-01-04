@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: "Remainders",
   description: "Memento Mori. Remember you must die. Live intentionally.",
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-    shortcut: '/android-chrome-192x192.png',
+    icon: '/favicon.ico?v=2',
+    apple: '/apple-touch-icon.png?v=2',
+    shortcut: '/android-chrome-192x192.png?v=2',
   },
   manifest: '/site.webmanifest',
 };

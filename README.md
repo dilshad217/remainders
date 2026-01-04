@@ -7,7 +7,7 @@
 Visualize your life progress or year at a glance. Generate beautiful, time-aware wallpapers that update automatically on your phone lock screen.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://vercel.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-remainders.vercel.app-black)](https://remainders.vercel.app/)
 
 - **Year View** - Track your current year's progress with a grid of daily dots
 - **Life View** - Visualize your entire life as 4,160 weeks in an 80-year timeline
