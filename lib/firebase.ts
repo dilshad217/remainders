@@ -32,15 +32,19 @@ import {
   Firestore
 } from 'firebase/firestore';
 
-// Firebase configuration from environment variables
+// Firebase configuration from environment variables with fallbacks
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'demo-api-key',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'demo-project.firebaseapp.com',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'demo-project',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'demo-project.appspot.com',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '123456789',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:123456789:web:abcdef',
 };
+
+// Check if Firebase is properly configured (not using demo values)
+const isFirebaseConfigured = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
 // Initialize Firebase only in browser environment (singleton pattern)
 let app: FirebaseApp | undefined;
@@ -48,13 +52,18 @@ let auth: Auth | undefined;
 let db: Firestore | undefined;
 
 if (typeof window !== 'undefined') {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
+  // Only initialize Firebase if properly configured
+  if (isFirebaseConfigured) {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+    auth = getAuth(app);
+    db = getFirestore(app);
   } else {
-    app = getApps()[0];
+    console.warn('Firebase not configured - running in demo mode. Add .env.local with Firebase credentials for full functionality.');
   }
-  auth = getAuth(app);
-  db = getFirestore(app);
 }
 
 // Export Firebase services (will be undefined on server)
@@ -74,7 +83,10 @@ if (typeof window !== 'undefined' && auth) {
  */
 export async function signInWithGoogle() {
   if (!auth || !googleProvider) {
-    return { user: null, error: 'Auth not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Auth not initialized (server-side)' 
+      : 'Firebase not configured - add .env.local with Firebase credentials to enable authentication';
+    return { user: null, error: message };
   }
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -121,7 +133,11 @@ export function onAuthChange(callback: (user: User | null) => void) {
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
   if (!db) {
-    console.error('Firestore not initialized');
+    if (!isFirebaseConfigured) {
+      console.warn('Firebase not configured - running in demo mode');
+    } else {
+      console.error('Firestore not initialized');
+    }
     return false;
   }
   try {
@@ -138,7 +154,10 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
  */
 export async function getUserProfile(userId: string) {
   if (!db) {
-    return { data: null, error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { data: null, error: message };
   }
   try {
     const profileDoc = await getDoc(doc(db, 'users', userId));
@@ -157,7 +176,10 @@ export async function getUserProfile(userId: string) {
  */
 export async function getUserConfigByUsername(username: string) {
   if (!db) {
-    return { data: null, error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { data: null, error: message };
   }
   try {
     const configDoc = await getDoc(doc(db, 'configs', username.toLowerCase()));
@@ -176,7 +198,10 @@ export async function getUserConfigByUsername(username: string) {
  */
 export async function saveUserProfile(userId: string, username: string, displayName: string, email: string) {
   if (!db) {
-    return { success: false, error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { success: false, error: message };
   }
   try {
     const usernameLower = username.toLowerCase();
@@ -213,7 +238,10 @@ export async function saveUserProfile(userId: string, username: string, displayN
  */
 export async function saveUserConfig(username: string, config: any) {
   if (!db) {
-    return { success: false, error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { success: false, error: message };
   }
   try {
     const usernameLower = username.toLowerCase();
@@ -235,7 +263,10 @@ export async function saveUserConfig(username: string, config: any) {
  */
 export async function getAvailablePlugins() {
   if (!db) {
-    return { data: [], error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { data: [], error: message };
   }
   try {
     const pluginsQuery = query(
@@ -259,7 +290,10 @@ export async function getAvailablePlugins() {
  */
 export async function getPlugin(pluginId: string) {
   if (!db) {
-    return { data: null, error: 'Firestore not initialized (server-side)' };
+    const message = isFirebaseConfigured 
+      ? 'Firestore not initialized (server-side)' 
+      : 'Firebase not configured - running in demo mode';
+    return { data: null, error: message };
   }
   try {
     const pluginDoc = await getDoc(doc(db, 'plugins', pluginId));

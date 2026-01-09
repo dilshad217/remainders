@@ -6,13 +6,40 @@
  * Firebase client SDK in server environments.
  */
 
-const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+// Firebase configuration with fallbacks for demo/dev mode
+const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'demo-project';
+const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'demo-api-key';
+
+// Check if Firebase is properly configured
+const isFirebaseConfigured = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
 /**
  * Get user config by username using REST API
  */
 export async function getUserConfigByUsername(username: string) {
+  // Return demo config if Firebase is not configured
+  if (!isFirebaseConfigured) {
+    console.log('Firebase not configured - returning demo config for', username);
+    return { 
+      data: {
+        birthDate: '1990-01-01',
+        device: 'desktop',
+        layout: 'life-view',
+        colors: {
+          background: '#000000',
+          foreground: '#FFFFFF',
+          accent: '#888888'
+        },
+        typography: {
+          fontFamily: 'monospace',
+          fontSize: 16
+        }
+      }, 
+      error: null 
+    };
+  }
+
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/configs/${username.toLowerCase()}`;
     
@@ -52,6 +79,15 @@ export async function getUserConfigByUsername(username: string) {
  * Get plugin by ID using REST API
  */
 export async function getPlugin(pluginId: string) {
+  // Return demo plugin if Firebase is not configured
+  if (!isFirebaseConfigured) {
+    console.log('Firebase not configured - returning demo plugin for', pluginId);
+    return { 
+      data: null, 
+      error: 'Firebase not configured - plugin system unavailable in demo mode' 
+    };
+  }
+
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/plugins/${pluginId}`;
     
