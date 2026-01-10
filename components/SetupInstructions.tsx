@@ -17,6 +17,7 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -74,7 +75,29 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
           </p>
         </header>
 
-        <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[70vh] no-scrollbar">
+        {/* Preview Image Modal */}
+        {showPreview && isIOS ? (
+          <div className="w-full bg-black/50 border border-orange-500/30 rounded-2xl p-4 shadow-2xl">
+            <div className="relative">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 flex items-center justify-center transition-colors z-10"
+                title="Close preview"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-400">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <img 
+                src="/IOS_Instructions.jpg"
+                alt="iOS Shortcuts Example"
+                className="w-full max-w-xs mx-auto rounded-lg"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[70vh] no-scrollbar">
 
           {/* iOS Instructions */}
           {isIOS && (
@@ -89,17 +112,20 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
                   <p className="leading-relaxed">
                     Select <strong className="text-neutral-300">Time of Day</strong> (e.g. 09:00 AM) → Select <strong className="text-white">Run Immediately</strong> (Important).
                   </p>
+                  <p className="leading-relaxed">
+                    Click <strong className="text-white">Next</strong>.
+                  </p>
                 </div>
               </div>
 
               <div className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">2</span>
                 <div className="pt-1.5 space-y-4 w-full min-w-0">
-                  <p className="font-medium text-white text-lg">Add Actions</p>
+                  <p className="font-medium text-white text-lg">Create New Shortcut</p>
 
                   <div className="space-y-2">
                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Action 1</p>
-                    <p className="text-white font-medium">Get Contents of URL</p>
+                    <p className="text-white font-medium">Search Action: Get Contents of URL</p>
                     <p>Paste your unique URL:</p>
                     <div className="relative w-full">
                       <button
@@ -118,14 +144,27 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
 
                   <div className="space-y-2">
                     <p className="text-xs text-neutral-500 uppercase tracking-wider">Action 2</p>
-                    <p className="text-white font-medium">Set Wallpaper</p>
+                    <p className="text-white font-medium">Search Action: Set Wallpaper Photo</p>
+                    <p>Select the wallpaper (it needs to be a simple wallpaper).</p>
                     <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-lg">
                       <p className="text-orange-200 text-xs leading-relaxed">
-                        <strong className="text-orange-400">Important:</strong> Tap the arrow <span className="text-orange-400 opacity-60">{'(>)'}</span> on this action and turn <strong className="text-orange-400">OFF "Show Preview"</strong>.
+                        <strong className="text-orange-400">Important:</strong> Tap the arrow <span className="text-orange-400 opacity-60">{'(>)'}</span> on this action and turn <strong className="text-orange-400">OFF "Show Preview"</strong> and <strong className="text-orange-400">Crop to Subject</strong>.
                       </p>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* See Example Button */}
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 transition-colors group"
+                  title="Show example"
+                >
+                  <span className="text-orange-400 font-bold text-sm group-hover:scale-110 transition-transform">!</span>
+                  <span className="text-orange-400 text-sm font-medium">See Example</span>
+                </button>
               </div>
             </div>
           )}
@@ -190,7 +229,8 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
             </div>
           )}
 
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
