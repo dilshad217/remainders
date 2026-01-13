@@ -172,52 +172,128 @@ export default function SetupInstructions({ wallpaperUrl, selectedBrand }: Setup
           {/* Android Instructions */}
           {isAndroid && (
             <div className="space-y-8 text-sm text-neutral-400">
+              {/* Prerequisites */}
               <div className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">1</span>
                 <div className="pt-1.5 space-y-2">
-                  <p className="font-medium text-white text-lg">Install MacroDroid</p>
-                  <p>Download <a href="https://play.google.com/store/apps/details?id=com.arlosoft.macrodroid&hl=en" target="_blank" rel="noopener noreferrer" className="text-white underline decoration-white/30 hover:decoration-white">MacroDroid</a> from the Play Store.</p>
+                  <p className="font-medium text-white text-lg">Prerequisites</p>
+                  <p className="leading-relaxed">
+                    Install <a href="https://play.google.com/store/apps/details?id=com.arlosoft.macrodroid&hl=en" target="_blank" rel="noopener noreferrer" className="text-white underline decoration-white/30 hover:decoration-white font-semibold">MacroDroid</a> from Google Play Store.
+                  </p>
                 </div>
               </div>
 
+              {/* Setup Macro */}
               <div className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">2</span>
+                <div className="pt-1.5 space-y-2">
+                  <p className="font-medium text-white text-lg">Setup Macro</p>
+                  <p className="leading-relaxed">
+                    Open <strong className="text-white">MacroDroid</strong> → <strong className="text-white">Add Macro</strong>
+                  </p>
+                  <div className="space-y-1 pl-4 border-l-2 border-white/10 mt-3">
+                    <p className="text-neutral-300">
+                      <strong className="text-white">Trigger:</strong> Date/Time → Day/Time → Set time to <strong className="text-white">00:00:00</strong>
+                    </p>
+                    <p className="text-neutral-400 text-xs">→ Activate <strong className="text-white">all weekdays</strong></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Configure Actions */}
+              <div className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">3</span>
                 <div className="pt-1.5 space-y-4 w-full min-w-0">
-                  <p className="font-medium text-white text-lg">Create Macro</p>
+                  <p className="font-medium text-white text-lg">Configure Actions</p>
 
-                  <div className="space-y-3">
-                    <div className="pl-4 border-l border-white/10">
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider block mb-1">Trigger</span>
-                      <strong className="text-neutral-200">Time of Day</strong>
-                      <p className="text-xs text-neutral-500 mt-1">Set to 09:00 AM (or preferred time)</p>
+                  {/* Action 1 */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">4.1 Download Image</p>
+                    <ul className="space-y-2 pl-4">
+                      <li className="leading-relaxed">
+                        Go to <strong className="text-white">Web Interactions</strong> → <strong className="text-white">HTTP Request</strong>
+                      </li>
+                      <li className="leading-relaxed">
+                        Request method: <strong className="text-white">GET</strong>
+                      </li>
+                      <li className="leading-relaxed">Paste the URL below:</li>
+                    </ul>
+                    <div className="relative w-full mt-2">
+                      <button
+                        onClick={copyUrl}
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-black/40 hover:bg-black/60 rounded-lg border border-white/10 transition-colors group overflow-hidden"
+                      >
+                        <span className="text-xs text-neutral-400 group-hover:text-white truncate font-mono flex-1 min-w-0 text-left">
+                          {wallpaperUrl}
+                        </span>
+                        <span className="flex-shrink-0 text-[10px] font-bold text-orange-400 uppercase tracking-wider bg-orange-400/10 px-2 py-1 rounded">
+                          {copied ? 'Copied' : 'Copy'}
+                        </span>
+                      </button>
                     </div>
+                    <ul className="space-y-1 pl-4 mt-2">
+                      <li className="text-neutral-300">
+                        Enable: <strong className="text-white">Block next actions until complete</strong>
+                      </li>
+                      <li className="text-neutral-300">
+                        Response: Tick <strong className="text-white">Save HTTP response to file</strong>
+                      </li>
+                      <li className="text-neutral-300">
+                        Folder & filename: <span className="font-mono text-white bg-white/10 px-1.5 py-0.5 rounded text-xs">/Download/life.png</span>
+                      </li>
+                    </ul>
+                  </div>
 
-                    <div className="pl-4 border-l border-white/10">
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider block mb-1">Action 1</span>
-                      <strong className="text-neutral-200">HTTP Request</strong>
-                      <p className="text-xs text-neutral-500 mt-1 mb-2">Method: GET. Paste URL:</p>
-                      <div className="relative w-full">
-                        <button
-                          onClick={copyUrl}
-                          className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-black/40 hover:bg-black/60 rounded-lg border border-white/10 transition-colors group overflow-hidden"
-                        >
-                          <span className="text-xs text-neutral-400 group-hover:text-white truncate font-mono flex-1 min-w-0 text-left">
-                            {wallpaperUrl}
-                          </span>
-                          <span className="flex-shrink-0 text-[10px] font-bold text-orange-400 uppercase tracking-wider bg-orange-400/10 px-2 py-1 rounded">
-                            {copied ? 'Copied' : 'Copy'}
-                          </span>
-                        </button>
-                      </div>
-                      <p className="text-xs text-neutral-500 mt-2">Check "Save response to file".</p>
-                    </div>
-
-                    <div className="pl-4 border-l border-white/10">
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider block mb-1">Action 2</span>
-                      <strong className="text-neutral-200">Set Wallpaper</strong>
-                      <p className="text-xs text-neutral-500 mt-1">"Select File" (Choose the file from Action 1).</p>
+                  {/* Action 2 */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">4.2 Set Wallpaper</p>
+                    <ul className="space-y-2 pl-4">
+                      <li className="leading-relaxed">
+                        Go to <strong className="text-white">Device Settings</strong> → <strong className="text-white">Set Wallpaper</strong>
+                      </li>
+                      <li className="leading-relaxed">
+                        Choose: <strong className="text-white">Image and Screen</strong>
+                      </li>
+                      <li className="leading-relaxed">
+                        Enter folder & filename: <span className="font-mono text-white bg-white/10 px-1.5 py-0.5 rounded text-xs">/Download/life.png</span>
+                      </li>
+                    </ul>
+                    <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-lg mt-2">
+                      <p className="text-orange-200 text-xs leading-relaxed">
+                        <strong className="text-orange-400">Important:</strong> Use the exact same folder and filename in both actions.
+                      </p>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Finalize */}
+              <div className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">4</span>
+                <div className="pt-1.5 space-y-2">
+                  <p className="font-medium text-white text-lg">Finalize</p>
+                  <p className="leading-relaxed">
+                    Give the macro a name → Tap <strong className="text-white">Create Macro</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Testing */}
+              <div className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">?</span>
+                <div className="pt-1.5 space-y-2">
+                  <p className="font-medium text-white text-lg">Testing & Managing</p>
+                  <ul className="space-y-1 pl-4">
+                    <li className="leading-relaxed">
+                      <strong className="text-white">Test:</strong> MacroDroid → Macros → select your macro → More options → <strong className="text-white">Test macro</strong>
+                    </li>
+                    <li className="leading-relaxed">
+                      <strong className="text-white">Stop:</strong> Toggle off or delete the macro
+                    </li>
+                    <li className="leading-relaxed">
+                      <strong className="text-white">Edit URL:</strong> Tap the HTTP Request action → Update the URL → Save
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
