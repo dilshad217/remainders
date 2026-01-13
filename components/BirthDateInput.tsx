@@ -30,7 +30,8 @@ export default function BirthDateInput({ value, onChange }: BirthDateInputProps)
         min={minDateStr}
         max={today}
         required
-        className="input-minimal text-white placeholder:text-neutral-700 bg-transparent [color-scheme:dark]"
+        className="input-minimal text-white placeholder:text-neutral-700 bg-black/30 border border-white/20 [color-scheme:dark]"
+        style={{ colorScheme: 'dark' }}
       />
     </div>
   );

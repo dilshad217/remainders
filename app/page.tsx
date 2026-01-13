@@ -168,7 +168,7 @@ export default function Home() {
                 id="mondayFirst"
                 checked={isMondayFirst}
                 onChange={(e) => setIsMondayFirst(e.target.checked)}
-                className="w-5 h-5 accent-white bg-neutral-800 border-2 border-white/20 rounded cursor-pointer"
+                className="w-5 h-5 rounded cursor-pointer border-2 border-white/30 bg-black/50 checked:bg-white checked:border-white appearance-none relative checked:after:content-['✓'] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 checked:after:text-black checked:after:text-sm checked:after:font-bold"
               />
               <label htmlFor="mondayFirst" className="text-xs uppercase tracking-widest text-neutral-500 cursor-pointer">
                 Start week on Monday
