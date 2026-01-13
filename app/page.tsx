@@ -75,7 +75,7 @@ export default function Home() {
   }, [birthDate, selectedDevice, viewMode, isMondayFirst]);
 
   const generateWallpaperUrl = () => {
-    if (!selectedDevice) return;
+    if (!selectedDevice || !selectedDevice.width || !selectedDevice.height) return;
     if (viewMode === 'life' && !birthDate) return;
 
     const params = new URLSearchParams({
