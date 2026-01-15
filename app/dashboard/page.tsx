@@ -1113,15 +1113,7 @@ export default function DashboardPage() {
                 rel="noopener noreferrer"
                 className="text-xs text-neutral-500 hover:text-white transition-colors uppercase tracking-widest"
               >
-                View Code →
-              </a>
-              <a
-                href="/plugins"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-neutral-500 hover:text-white transition-colors uppercase tracking-widest"
-              >
-                Submit Plugin →
+                My Plugins →
               </a>
             </div>
           </div>

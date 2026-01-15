@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 interface Plugin {
   id: string;
@@ -23,6 +23,7 @@ interface Plugin {
   version?: string;
   configSchema?: any;
   defaultSettings?: any;
+  isPrivate?: boolean;
 }
 
 const BUILTIN_PLUGINS: Omit<Plugin, 'source'>[] = [
@@ -109,6 +110,8 @@ export default function PluginEditorPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loadingPlugins, setLoadingPlugins] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
 
   useEffect(() => {
     loadBuiltInPlugins();
@@ -160,6 +163,7 @@ export default function PluginEditorPage() {
           version: doc.data().version,
           configSchema: doc.data().configSchema,
           defaultSettings: doc.data().defaultSettings,
+          isPrivate: doc.data().isPrivate || false,
         }));
 
       setPlugins(prev => {
@@ -243,6 +247,49 @@ export default function PluginEditorPage() {
     router.push(`/plugins?clone=${encodeURIComponent(JSON.stringify(cloneData))}`);
   };
 
+  const handleDelete = async () => {
+    if (!selectedPlugin || !db) return;
+
+    try {
+      const pluginRef = doc(db, 'plugins', selectedPlugin.id);
+      await deleteDoc(pluginRef);
+
+      setPlugins(plugins.filter(p => p.id !== selectedPlugin.id));
+      setSelectedPlugin(null);
+      setSuccess('Plugin deleted successfully!');
+      setShowDeleteConfirm(false);
+      
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError('Failed to delete plugin: ' + err.message);
+    }
+  };
+
+  const handleTogglePrivacy = async () => {
+    if (!selectedPlugin || selectedPlugin.isBuiltIn || !db) return;
+
+    try {
+      const newPrivacy = !selectedPlugin.isPrivate;
+      const pluginRef = doc(db, 'plugins', selectedPlugin.id);
+      await updateDoc(pluginRef, {
+        isPrivate: newPrivacy,
+        updatedAt: new Date(),
+      });
+
+      setPlugins(plugins.map(p => 
+        p.id === selectedPlugin.id 
+          ? { ...p, isPrivate: newPrivacy } 
+          : p
+      ));
+      setSelectedPlugin({ ...selectedPlugin, isPrivate: newPrivacy });
+      setSuccess(`Plugin is now ${newPrivacy ? 'private' : 'public'}!`);
+      
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError('Failed to update privacy: ' + err.message);
+    }
+  };
+
   if (loading || loadingPlugins) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
@@ -258,16 +305,10 @@ export default function PluginEditorPage() {
       {/* Header */}
       <header className="border-b border-neutral-800 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-sm tracking-widest uppercase">Plugin Code Viewer</h1>
-          <p className="text-xs text-neutral-500">View and edit plugin source code</p>
+          <h1 className="text-sm tracking-widest uppercase">My Plugins</h1>
+          <p className="text-xs text-neutral-500">Manage, view and edit your plugins</p>
         </div>
         <div className="flex gap-2 sm:gap-4 text-xs">
-          <button
-            onClick={() => router.push('/plugins')}
-            className="text-neutral-500 hover:text-white uppercase tracking-wider transition-colors whitespace-nowrap"
-          >
-            Submit Plugin
-          </button>
           <button
             onClick={() => router.push('/dashboard')}
             className="text-neutral-500 hover:text-white uppercase tracking-wider transition-colors whitespace-nowrap"
@@ -349,6 +390,15 @@ export default function PluginEditorPage() {
                       Built-in Plugin
                     </span>
                   )}
+                  {!selectedPlugin.isBuiltIn && (
+                    <span className={`inline-block mt-2 px-2 py-1 text-xs uppercase tracking-wider ${
+                      selectedPlugin.isPrivate 
+                        ? 'bg-purple-900 text-purple-200' 
+                        : 'bg-green-900 text-green-200'
+                    }`}>
+                      {selectedPlugin.isPrivate ? 'Private' : 'Public'}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex gap-2 flex-wrap">
@@ -362,12 +412,26 @@ export default function PluginEditorPage() {
                   ) : (
                     <>
                       {!isEditing ? (
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="px-3 sm:px-4 py-2 bg-white text-black hover:bg-neutral-200 transition-colors text-xs uppercase tracking-wider whitespace-nowrap"
-                        >
-                          Edit Code
-                        </button>
+                        <>
+                          <button
+                            onClick={handleTogglePrivacy}
+                            className="px-3 sm:px-4 py-2 bg-purple-900 hover:bg-purple-800 transition-colors text-xs uppercase tracking-wider whitespace-nowrap"
+                          >
+                            {selectedPlugin.isPrivate ? 'Make Public' : 'Make Private'}
+                          </button>
+                          <button
+                            onClick={() => setIsEditing(true)}
+                            className="px-3 sm:px-4 py-2 bg-white text-black hover:bg-neutral-200 transition-colors text-xs uppercase tracking-wider whitespace-nowrap"
+                          >
+                            Edit Code
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="px-3 sm:px-4 py-2 bg-red-900 hover:bg-red-800 transition-colors text-xs uppercase tracking-wider whitespace-nowrap"
+                          >
+                            Delete
+                          </button>
+                        </>
                       ) : (
                         <>
                           <button
@@ -430,11 +494,43 @@ export default function PluginEditorPage() {
                 <p className="text-xs text-neutral-700 mt-2">
                   Choose from the list on the left
                 </p>
+                <button
+                  onClick={() => router.push('/plugins')}
+                  className="mt-6 px-6 py-3 bg-white text-black hover:bg-neutral-200 transition-colors text-xs uppercase tracking-wider"
+                >
+                  Submit New Plugin
+                </button>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 border border-neutral-800 p-6 max-w-md w-full">
+            <h3 className="text-lg font-medium mb-4">Delete Plugin?</h3>
+            <p className="text-sm text-neutral-400 mb-6">
+              Are you sure you want to delete "{selectedPlugin?.name}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 transition-colors text-xs uppercase tracking-wider"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-900 hover:bg-red-800 transition-colors text-xs uppercase tracking-wider"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

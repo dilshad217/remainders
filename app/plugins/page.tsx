@@ -23,6 +23,7 @@ function PluginSubmissionForm() {
   const [code, setCode] = useState('');
   const [configSchema, setConfigSchema] = useState('{}');
   const [defaultSettings, setDefaultSettings] = useState('{}');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -126,6 +127,7 @@ function PluginSubmissionForm() {
         code: code,
         configSchema: JSON.parse(configSchema),
         defaultSettings: JSON.parse(defaultSettings),
+        isPrivate: isPrivate,
         version: '1.0.0',
         approved: true, // Auto-approve
         installs: 0,
@@ -139,10 +141,7 @@ function PluginSubmissionForm() {
       setCode('');
       setConfigSchema('{}');
       setDefaultSettings('{}');
-      
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
+      setIsPrivate(false);
     } catch (err: any) {
       setError('Failed to submit plugin: ' + err.message);
     }
@@ -196,7 +195,28 @@ function PluginSubmissionForm() {
       <div className="p-4 max-w-3xl mx-auto">
         {success && (
           <div className="mb-6 p-4 bg-green-900 border border-green-700 rounded-lg text-green-100">
-            ✓ Plugin submitted successfully! Redirecting to dashboard...
+            <div className="flex items-start gap-3">
+              <span className="text-lg">✓</span>
+              <div className="flex-1">
+                <p className="font-medium mb-2">Plugin submitted successfully!</p>
+                <div className="flex gap-3 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/plugins/editor')}
+                    className="px-4 py-2 bg-green-800 hover:bg-green-700 text-green-100 text-xs uppercase tracking-wider transition-colors"
+                  >
+                    View Plugin Code
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/dashboard')}
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs uppercase tracking-wider transition-colors"
+                  >
+                    Go to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -291,6 +311,38 @@ return {
               rows={3}
               className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 focus:border-white outline-none text-white font-mono text-sm resize-none"
             />
+          </div>
+
+          {/* Privacy Toggle */}
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-500">
+              Privacy
+            </label>
+            <div className="flex items-center gap-3 p-4 bg-neutral-900 border border-neutral-700">
+              <button
+                type="button"
+                onClick={() => setIsPrivate(!isPrivate)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  isPrivate ? 'bg-purple-600' : 'bg-neutral-700'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    isPrivate ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              <div className="flex-1">
+                <p className="text-sm text-white">
+                  {isPrivate ? 'Private Plugin' : 'Public Plugin'}
+                </p>
+                <p className="text-xs text-neutral-500 mt-1">
+                  {isPrivate 
+                    ? 'Only you can see and install this plugin' 
+                    : 'Everyone can see and install this plugin'}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Submit Button */}

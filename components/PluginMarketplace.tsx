@@ -8,6 +8,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/auth-context';
 import { getAvailablePlugins } from '@/lib/firebase';
 import { Plugin, PluginConfig } from '@/lib/types';
 
@@ -26,6 +27,7 @@ export default function PluginMarketplace({
   onToggle,
   onConfigure,
 }: PluginMarketplaceProps) {
+  const { user } = useAuth();
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
@@ -35,11 +37,11 @@ export default function PluginMarketplace({
 
   useEffect(() => {
     loadPlugins();
-  }, []);
+  }, [user]);
 
   const loadPlugins = async () => {
     setLoading(true);
-    const { data } = await getAvailablePlugins();
+    const { data } = await getAvailablePlugins(user?.uid);
     if (data) {
       setPlugins(data as Plugin[]);
     }

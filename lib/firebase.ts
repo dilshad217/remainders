@@ -261,7 +261,7 @@ export async function saveUserConfig(username: string, config: any) {
 /**
  * Get available plugins from marketplace
  */
-export async function getAvailablePlugins() {
+export async function getAvailablePlugins(userId?: string) {
   if (!db) {
     const message = isFirebaseConfigured 
       ? 'Firestore not initialized (server-side)' 
@@ -277,7 +277,12 @@ export async function getAvailablePlugins() {
     const plugins = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    })).filter(plugin => {
+      // Show all public plugins
+      if (!plugin.isPrivate) return true;
+      // Show private plugins only to their author
+      return userId && plugin.authorId === userId;
+    });
     return { data: plugins, error: null };
   } catch (error: any) {
     console.error('Error fetching plugins:', error);

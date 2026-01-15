@@ -226,6 +226,12 @@ export interface Plugin {
   /** Admin approval status */
   approved?: boolean;
   
+  /** Privacy setting - if true, only author can see it */
+  isPrivate?: boolean;
+  
+  /** Author user ID */
+  authorId?: string;
+  
   /** Download count */
   downloads?: number;
   
