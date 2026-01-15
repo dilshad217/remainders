@@ -193,6 +193,19 @@ function PluginSubmissionForm() {
 
       {/* Form */}
       <div className="p-4 max-w-3xl mx-auto">
+        {/* Plugin Development Guide Link */}
+        <div className="mb-6 p-4 bg-blue-900 border border-blue-700 rounded-lg text-blue-100">
+          <p className="text-sm mb-2">📖 <strong>New to plugin development?</strong></p>
+          <p className="text-xs mb-3">Learn how to create plugins with our comprehensive guide:</p>
+          <a
+            href="https://github.com/Ti-03/remainders/blob/main/lib/plugins/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-300 hover:text-blue-200 underline break-all"
+          >
+            https://github.com/Ti-03/remainders/blob/main/lib/plugins/README.md
+          </a>
+        </div>
         {success && (
           <div className="mb-6 p-4 bg-green-900 border border-green-700 rounded-lg text-green-100">
             <div className="flex items-start gap-3">
@@ -340,6 +353,20 @@ return {
                   {isPrivate 
                     ? 'Only you can see and install this plugin' 
                     : 'Everyone can see and install this plugin'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Review Warning */}
+          <div className="p-4 bg-yellow-900 border border-yellow-700 rounded-lg text-yellow-100">
+            <div className="flex items-start gap-3">
+              <span className="text-lg">⚠️</span>
+              <div className="flex-1">
+                <p className="font-medium mb-2">Plugin Review Policy</p>
+                <p className="text-xs leading-relaxed">
+                  All public plugins will be reviewed. Plugins that don't work correctly or don't meet quality standards may be removed without notice. 
+                  <strong className="block mt-2">Please test your plugin privately before making it public!</strong>
                 </p>
               </div>
             </div>
