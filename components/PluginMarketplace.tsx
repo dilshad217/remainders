@@ -31,6 +31,7 @@ export default function PluginMarketplace({
   const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsValues, setSettingsValues] = useState<Record<string, any>>({});
+  const [showCommunityPlugins, setShowCommunityPlugins] = useState(false);
 
   useEffect(() => {
     loadPlugins();
@@ -159,13 +160,27 @@ export default function PluginMarketplace({
 
       {/* Available Plugins Section */}
       <div className="space-y-4">
-        <h3 className="text-xs uppercase tracking-wider text-neutral-400">Available Plugins</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs uppercase tracking-wider text-neutral-400">Available Plugins</h3>
+          <button
+            onClick={() => setShowCommunityPlugins(!showCommunityPlugins)}
+            className="px-3 py-1 bg-neutral-800 hover:bg-neutral-700 transition-colors text-xs uppercase tracking-wider border border-neutral-700"
+          >
+            {showCommunityPlugins ? 'Hide Community Plugins' : 'Show Community Plugins'}
+          </button>
+        </div>
         {plugins.length === 0 ? (
           <p className="text-sm text-neutral-500">No plugins available yet.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {plugins.map((plugin) => {
+            {plugins
+              .filter((plugin) => {
+                // Show Remainders Team plugins always, community plugins only when toggled
+                return showCommunityPlugins || plugin.author === 'Remainders Team';
+              })
+              .map((plugin) => {
               const installed = isInstalled(plugin.id);
+              const isOfficialPlugin = plugin.author === 'Remainders Team';
               
               return (
                 <div
@@ -173,10 +188,19 @@ export default function PluginMarketplace({
                   className="p-4 bg-neutral-900 border border-neutral-800 rounded-lg space-y-3"
                 >
                   <div>
-                    <div className="flex items-start justify-between">
-                      <h4 className="text-sm font-medium">{plugin.name}</h4>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-medium">{plugin.name}</h4>
+                          {isOfficialPlugin && (
+                            <span className="px-2 py-0.5 bg-blue-900 text-blue-300 text-[10px] uppercase tracking-wider">
+                              Official
+                            </span>
+                          )}
+                        </div>
+                      </div>
                       {installed && (
-                        <span className="px-2 py-1 bg-green-900 text-green-300 text-xs uppercase tracking-wider">
+                        <span className="px-2 py-1 bg-green-900 text-green-300 text-xs uppercase tracking-wider flex-shrink-0">
                           Installed
                         </span>
                       )}
