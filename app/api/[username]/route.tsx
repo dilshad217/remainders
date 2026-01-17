@@ -267,6 +267,7 @@ export async function GET(
         ...viewProps,
         isMondayFirst: config.isMondayFirst || false,
         yearViewLayout: config.yearViewLayout || 'months',
+        daysLayoutMode: config.daysLayoutMode || 'continuous',
         timezone: userTimezone,
       });
     }

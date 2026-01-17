@@ -9,9 +9,10 @@ interface YearViewProps {
     height: number;
     isMondayFirst: boolean;
     yearViewLayout?: 'months' | 'days';
+    daysLayoutMode?: 'calendar' | 'continuous';
 }
 
-export function YearView({ width, height, isMondayFirst, yearViewLayout = 'months' }: YearViewProps) {
+export function YearView({ width, height, isMondayFirst, yearViewLayout = 'months', daysLayoutMode = 'continuous' }: YearViewProps) {
     // Colors Config
     const BG_COLOR = '#1a1a1a'; // Dark background
     const TEXT_COLOR = '#888888'; // Grey for text
@@ -26,7 +27,7 @@ export function YearView({ width, height, isMondayFirst, yearViewLayout = 'month
     const daysLeft = calculateDaysLeftInYear();
     const totalDays = getTotalDaysInCurrentYear();
 
-    // Days View Layout (continuous rectangle grid)
+    // Days View Layout (weekly grid - 2 weeks per row)
     if (yearViewLayout === 'days') {
         const aspectRatio = height / width;
         
@@ -38,9 +39,24 @@ export function YearView({ width, height, isMondayFirst, yearViewLayout = 'month
         const paddingX = width * basePaddingRatio;
         const availableWidth = width - paddingX * 2;
         
-        // Calculate grid dimensions - fixed 14 days per row
+        // Calculate grid dimensions - 14 days per row (2 weeks)
         const COLS_PER_ROW = 14;
-        const ROWS = Math.ceil(totalDays / COLS_PER_ROW);
+        
+        // Calculate offset for calendar mode
+        let startDayOffset = 0;
+        if (daysLayoutMode === 'calendar') {
+            // Get the day of week for January 1st
+            const jan1 = new Date(currentYear, 0, 1);
+            startDayOffset = jan1.getDay(); // 0 = Sunday
+            
+            // If Monday first, adjust the offset
+            if (isMondayFirst) {
+                startDayOffset = startDayOffset === 0 ? 6 : startDayOffset - 1;
+            }
+        }
+        
+        const totalCells = startDayOffset + totalDays;
+        const ROWS = Math.ceil(totalCells / COLS_PER_ROW);
         
         const maxDotSizeH = availableWidth / COLS_PER_ROW;
         const maxDotSizeV = SAFE_HEIGHT / (ROWS + 2);
@@ -69,8 +85,10 @@ export function YearView({ width, height, isMondayFirst, yearViewLayout = 'month
                 color = FUTURE_COLOR;
             }
             
-            const row = Math.floor((day - 1) / COLS_PER_ROW);
-            const col = (day - 1) % COLS_PER_ROW;
+            // Calculate position with offset for first week
+            const cellIndex = day - 1 + startDayOffset;
+            const row = Math.floor(cellIndex / COLS_PER_ROW);
+            const col = cellIndex % COLS_PER_ROW;
             
             allDots.push(
                 <div

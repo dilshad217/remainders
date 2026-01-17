@@ -9,7 +9,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { saveUserProfile, saveUserConfig, isUsernameAvailable, getUserConfigByUsername } from '@/lib/firebase';
-import { UserConfig, DeviceModel, ViewMode, Plugin, PluginConfig, TextElement } from '@/lib/types';
+import { UserConfig, DeviceModel, ViewMode, Plugin, PluginConfig, TextElement, DaysLayoutMode } from '@/lib/types';
 import ViewModeToggle from '@/components/ViewModeToggle';
 import BirthDateInput from '@/components/BirthDateInput';
 import DeviceSelector from '@/components/DeviceSelector';
@@ -37,6 +37,7 @@ export default function DashboardPage() {
   const [selectedDevice, setSelectedDevice] = useState<DeviceModel | null>(null);
   const [isMondayFirst, setIsMondayFirst] = useState(false);
   const [yearViewLayout, setYearViewLayout] = useState<'months' | 'days'>('months');
+  const [daysLayoutMode, setDaysLayoutMode] = useState<'calendar' | 'continuous'>('continuous');
   
   // Customization state
   const [selectedTheme, setSelectedTheme] = useState<string>('Dark Default');
@@ -132,6 +133,7 @@ export default function DashboardPage() {
       birthDate,
       isMondayFirst,
       yearViewLayout,
+      daysLayoutMode,
       timezone,
       device: JSON.stringify(currentDevice),
     };
@@ -146,6 +148,7 @@ export default function DashboardPage() {
       birthDate: config.birthDate,
       isMondayFirst: config.isMondayFirst,
       yearViewLayout: config.yearViewLayout,
+      daysLayoutMode: config.daysLayoutMode,
       timezone: config.timezone,
       device: JSON.stringify(config.device),
     };
@@ -175,7 +178,7 @@ export default function DashboardPage() {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [colors, fontFamily, fontSize, statsVisible, layout, plugins, textElements, viewMode, birthDate, isMondayFirst, timezone, selectedDevice, config, isConfigComplete]);
+  }, [colors, fontFamily, fontSize, statsVisible, layout, plugins, textElements, viewMode, birthDate, isMondayFirst, yearViewLayout, daysLayoutMode, timezone, selectedDevice, config, isConfigComplete]);
 
   const loadUserConfig = async (username: string) => {
     const { data } = await getUserConfigByUsername(username);
@@ -186,6 +189,7 @@ export default function DashboardPage() {
       setBirthDate(cfg.birthDate || '');
       setIsMondayFirst(cfg.isMondayFirst || false);
       setYearViewLayout(cfg.yearViewLayout || 'months');
+      setDaysLayoutMode(cfg.daysLayoutMode || 'continuous');
       
       // Load customization settings
       if (cfg.colors) {
@@ -254,6 +258,8 @@ export default function DashboardPage() {
         viewMode: viewMode,
         birthDate: birthDate,
         isMondayFirst: isMondayFirst,
+        yearViewLayout: yearViewLayout,
+        daysLayoutMode: daysLayoutMode,
         timezone: timezone,
         device: defaultDevice,
       };
@@ -380,6 +386,8 @@ export default function DashboardPage() {
       viewMode,
       birthDate,
       isMondayFirst,
+      yearViewLayout,
+      daysLayoutMode,
       device: selectedDevice,
       plugins,
       textElements,
@@ -415,6 +423,8 @@ export default function DashboardPage() {
         if (imported.viewMode) setViewMode(imported.viewMode);
         if (imported.birthDate) setBirthDate(imported.birthDate);
         if (imported.isMondayFirst !== undefined) setIsMondayFirst(imported.isMondayFirst);
+        if (imported.yearViewLayout) setYearViewLayout(imported.yearViewLayout);
+        if (imported.daysLayoutMode) setDaysLayoutMode(imported.daysLayoutMode);
         if (imported.device) setSelectedDevice(imported.device);
         if (imported.textElements) setTextElements(imported.textElements);
         if (imported.plugins) setPlugins(imported.plugins);
@@ -454,6 +464,7 @@ export default function DashboardPage() {
     });
     setPlugins([]);
     setTextElements([]);
+    setDaysLayoutMode('continuous');
     setShowResetConfirm(false);
     setSaveMessage('✓ Settings reset to defaults');
     setTimeout(() => setSaveMessage(''), 2000);
@@ -493,6 +504,7 @@ export default function DashboardPage() {
         plugins: [],
         isMondayFirst,
         yearViewLayout,
+        daysLayoutMode,
         timezone: 'UTC',
         updatedAt: new Date(),
       };
@@ -529,6 +541,7 @@ export default function DashboardPage() {
       plugins: plugins,
       isMondayFirst,
       yearViewLayout,
+      daysLayoutMode,
       timezone: timezone,
       updatedAt: new Date(),
     };
@@ -756,7 +769,42 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              {yearViewLayout === 'months' && (
+              {/* Days Layout Mode - only show when yearViewLayout is 'days' */}
+              {yearViewLayout === 'days' && (
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-widest text-neutral-500">Days Layout Mode</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setDaysLayoutMode('continuous')}
+                      className={`flex-1 py-3 text-xs uppercase tracking-widest transition-colors ${
+                        daysLayoutMode === 'continuous'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Continuous
+                    </button>
+                    <button
+                      onClick={() => setDaysLayoutMode('calendar')}
+                      className={`flex-1 py-3 text-xs uppercase tracking-widest transition-colors ${
+                        daysLayoutMode === 'calendar'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Calendar
+                    </button>
+                  </div>
+                  <p className="text-xs text-neutral-500">
+                    {daysLayoutMode === 'continuous'
+                      ? 'Days flow continuously without week alignment'
+                      : 'Days follow calendar week structure'}
+                  </p>
+                </div>
+              )}
+
+              {/* Monday First - show for months view OR days view with calendar mode */}
+              {(yearViewLayout === 'months' || (yearViewLayout === 'days' && daysLayoutMode === 'calendar')) && (
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"

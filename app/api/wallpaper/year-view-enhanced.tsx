@@ -17,6 +17,7 @@ interface YearViewProps {
   height: number;
   isMondayFirst: boolean;
   yearViewLayout?: 'months' | 'days';
+  daysLayoutMode?: 'calendar' | 'continuous';
   colors?: {
     background: string;
     past: string;
@@ -46,6 +47,7 @@ export default function YearView({
   height,
   isMondayFirst,
   yearViewLayout = 'months',
+  daysLayoutMode = 'continuous',
   colors = {
     background: '#1a1a1a',
     past: '#FFFFFF',
@@ -76,7 +78,7 @@ export default function YearView({
   const daysLeft = calculateDaysLeftInYear(timezone);
   const totalDays = getTotalDaysInCurrentYear();
 
-  // Days View Layout (continuous rectangle grid)
+  // Days View Layout (weekly grid - 2 weeks per row)
   if (yearViewLayout === 'days') {
     const aspectRatio = height / width;
     
@@ -95,9 +97,24 @@ export default function YearView({
     const paddingX = width * adjustedSidePadding;
     const availableWidth = width - paddingX * 2;
     
-    // Calculate grid dimensions - fixed 14 days per row
+    // Calculate grid dimensions - 14 days per row (2 weeks)
     const COLS_PER_ROW = 14;
-    const ROWS = Math.ceil(totalDays / COLS_PER_ROW);
+    
+    // Calculate offset for calendar mode
+    let startDayOffset = 0;
+    if (daysLayoutMode === 'calendar') {
+      // Get the day of week for January 1st
+      const jan1 = new Date(currentYear, 0, 1);
+      startDayOffset = jan1.getDay(); // 0 = Sunday
+      
+      // If Monday first, adjust the offset
+      if (isMondayFirst) {
+        startDayOffset = startDayOffset === 0 ? 6 : startDayOffset - 1;
+      }
+    }
+    
+    const totalCells = startDayOffset + totalDays;
+    const ROWS = Math.ceil(totalCells / COLS_PER_ROW);
     
     // Calculate dot size
     const maxDotSizeH = availableWidth / COLS_PER_ROW;
@@ -127,8 +144,10 @@ export default function YearView({
         color = colors.future;
       }
       
-      const row = Math.floor((day - 1) / COLS_PER_ROW);
-      const col = (day - 1) % COLS_PER_ROW;
+      // Calculate position with offset for first week
+      const cellIndex = day - 1 + startDayOffset;
+      const row = Math.floor(cellIndex / COLS_PER_ROW);
+      const col = cellIndex % COLS_PER_ROW;
       
       allDots.push(
         <div

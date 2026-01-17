@@ -22,6 +22,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'year' | 'life'>('life');
   const [isMondayFirst, setIsMondayFirst] = useState(false);
   const [yearViewLayout, setYearViewLayout] = useState<'months' | 'days'>('months');
+  const [daysLayoutMode, setDaysLayoutMode] = useState<'calendar' | 'continuous'>('continuous');
   const [wallpaperUrl, setWallpaperUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -36,6 +37,7 @@ export default function Home() {
         if (profile.viewMode) setViewMode(profile.viewMode);
         if (profile.isMondayFirst !== undefined) setIsMondayFirst(profile.isMondayFirst);
         if ((profile as any).yearViewLayout) setYearViewLayout((profile as any).yearViewLayout);
+        if ((profile as any).daysLayoutMode) setDaysLayoutMode((profile as any).daysLayoutMode);
 
         if (profile.device) {
           setSelectedDevice({
@@ -67,6 +69,7 @@ export default function Home() {
         viewMode,
         isMondayFirst,
         yearViewLayout,
+        daysLayoutMode,
       };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
@@ -75,7 +78,7 @@ export default function Home() {
         console.error('Failed to save profile:', error);
       }
     }
-  }, [birthDate, selectedDevice, viewMode, isMondayFirst]);
+  }, [birthDate, selectedDevice, viewMode, isMondayFirst, yearViewLayout, daysLayoutMode]);
 
   const generateWallpaperUrl = () => {
     if (!selectedDevice || !selectedDevice.width || !selectedDevice.height) return;
@@ -97,6 +100,9 @@ export default function Home() {
         params.append('isMondayFirst', 'true');
       }
       params.append('yearViewLayout', yearViewLayout);
+      if (yearViewLayout === 'days') {
+        params.append('daysLayoutMode', daysLayoutMode);
+      }
     }
 
     const baseUrl = typeof window !== 'undefined'
@@ -112,7 +118,7 @@ export default function Home() {
     if (isFormComplete && !wallpaperUrl) {
       generateWallpaperUrl();
     }
-  }, [selectedDevice, birthDate, viewMode, isMondayFirst, yearViewLayout]);
+  }, [selectedDevice, birthDate, viewMode, isMondayFirst, yearViewLayout, daysLayoutMode]);
 
   const copyToClipboard = async () => {
     try {
@@ -196,7 +202,42 @@ export default function Home() {
                 </div>
               </div>
 
-              {yearViewLayout === 'months' && (
+              {/* Days Layout Mode - only show when yearViewLayout is 'days' */}
+              {yearViewLayout === 'days' && (
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-widest text-neutral-500">Days Mode</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setDaysLayoutMode('continuous')}
+                      className={`flex-1 py-3 text-xs uppercase tracking-widest transition-colors ${
+                        daysLayoutMode === 'continuous'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-900 text-neutral-500 hover:bg-neutral-800'
+                      }`}
+                    >
+                      Continuous
+                    </button>
+                    <button
+                      onClick={() => setDaysLayoutMode('calendar')}
+                      className={`flex-1 py-3 text-xs uppercase tracking-widest transition-colors ${
+                        daysLayoutMode === 'calendar'
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-900 text-neutral-500 hover:bg-neutral-800'
+                      }`}
+                    >
+                      Calendar
+                    </button>
+                  </div>
+                  <p className="text-xs text-neutral-500">
+                    {daysLayoutMode === 'continuous'
+                      ? 'Days flow continuously'
+                      : 'Days follow week structure'}
+                  </p>
+                </div>
+              )}
+
+              {/* Monday First - show for months view OR days view with calendar mode */}
+              {(yearViewLayout === 'months' || (yearViewLayout === 'days' && daysLayoutMode === 'calendar')) && (
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"

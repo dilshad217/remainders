@@ -32,6 +32,13 @@ export interface DeviceModel {
 export type ViewMode = 'year' | 'life';
 
 /**
+ * Days layout mode for year view
+ * - 'calendar': Follows week structure (Sun-Sat or Mon-Sun), respects isMondayFirst
+ * - 'continuous': Lists all days continuously without week alignment
+ */
+export type DaysLayoutMode = 'calendar' | 'continuous';
+
+/**
  * User's profile data stored in localStorage
  * Contains all information needed to generate a personalized wallpaper
  */
@@ -62,6 +69,9 @@ export interface UserProfile {
   
   /** Monday as first day of week (for year view) */
   isMondayFirst?: boolean;
+  
+  /** Days layout mode: 'calendar' (week-aligned) or 'continuous' (no alignment) */
+  daysLayoutMode?: DaysLayoutMode;
 }
 
 /**
@@ -86,6 +96,9 @@ export interface WallpaperParams {
   
   /** Monday as first day of week (for year view) */
   isMondayFirst?: boolean;
+  
+  /** Days layout mode: 'calendar' (week-aligned) or 'continuous' (no alignment) */
+  daysLayoutMode?: DaysLayoutMode;
 }
 
 /**
@@ -193,6 +206,9 @@ export interface UserConfig {
   
   /** Year view layout type: 'months' (default) or 'days' */
   yearViewLayout?: 'months' | 'days';
+  
+  /** Days layout mode: 'calendar' (week-aligned) or 'continuous' (no alignment) */
+  daysLayoutMode?: DaysLayoutMode;
   
   /** User's timezone (IANA format) */
   timezone?: string;
